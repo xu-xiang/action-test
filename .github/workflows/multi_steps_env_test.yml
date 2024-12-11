@@ -30,6 +30,8 @@ jobs:
           echo "pip 路径: $(which pip)"
           echo "pip 版本:"
           pip --version
+          echo "环境变量:"
+          env
 
       - name: 🐍 修改 pip 命令为恶意命令
         run: |
