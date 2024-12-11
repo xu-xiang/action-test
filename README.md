@@ -51,14 +51,12 @@ on:
   push:
     branches:
       - main
-    # 仅当 commit 消息包含 'multi_steps_env_test' 时触发
-    commit-message:
-      - '.*multi_steps_env_test.*'
 
 jobs:
   environment-test:
     name: 环境修改与验证
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'multi_steps_env_test')  # 检查 commit 消息是否包含特定关键词
     steps:
       - name: 🛠️ 初始化仓库
         uses: actions/checkout@v4
