@@ -38,6 +38,8 @@ touch .github/workflows/multi_steps_env_test.yml
 ```yaml
 name: multi_steps_env_test
 
+# 测试说明：测试上游步骤污染后续步骤，/usr/bin/pip没有写权限，写/usr/local/bin/pip也可以污染后续流程（PATH=环境变量中/usr/local/bin:/usr/sbin:/usr/bin，前面的先加载）
+
 on:
   # 手动触发
   workflow_dispatch:
@@ -68,6 +70,31 @@ jobs:
           echo "pip 路径: $(which pip)"
           echo "pip 版本:"
           pip --version
+          echo "环境变量:"
+          env
+
+      - name: 🔒 检查用户写权限
+        run: |
+          dirs=(
+            "/root"
+            "/etc"
+            "/bin"
+            "/usr/bin"
+            "/sbin"
+            "/usr/sbin"
+            "/lib"
+            "/usr/lib"
+            "/opt"
+            "/opt/pipx_bin"
+          )
+
+          for dir in "${dirs[@]}"; do
+            if [ -w "$dir" ]; then
+              echo "⚠️ 目录 $dir 有写权限（意外）"
+            else
+              echo "✅ 目录 $dir 无写权限（预期）"
+            fi
+          done
 
       - name: 🐍 修改 pip 命令为恶意命令
         run: |
