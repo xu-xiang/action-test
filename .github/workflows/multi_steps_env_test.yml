@@ -1,0 +1,53 @@
+name: multi_steps_env_test
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: '测试类型'
+        required: false
+        default: '默认测试'
+
+  # 当 commit 消息包含特定关键词时触发
+  push:
+    branches:
+      - main
+    # 仅当 commit 消息包含 'multi_steps_env_test' 时触发
+    commit-message:
+      - '.*multi_steps_env_test.*'
+
+jobs:
+  environment-test:
+    name: 环境修改与验证
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛠️ 初始化仓库
+        uses: actions/checkout@v4
+
+      - name: 🧾 打印初始环境信息
+        run: |
+          echo "当前用户 ID: $(id -u)"
+          echo "当前用户: $(whoami)"
+          echo "pip 路径: $(which pip)"
+          echo "pip 版本:"
+          pip --version
+
+      - name: 🐍 修改 pip 命令为恶意命令
+        run: |
+          echo 'echo "⚠️ 恶意 pip 已执行！"' > /usr/local/bin/pip
+          chmod +x /usr/local/bin/pip
+          echo "已将 pip 命令修改为打印恶意消息。"
+
+      - name: 🔍 验证 pip 修改结果
+        run: |
+          echo "修改后 pip 路径: $(which pip)"
+          echo "修改后 pip 版本:"
+          pip --version || echo "⚠️ pip 执行失败！"
+
+      - name: 🧪 尝试使用 pip 安装依赖
+        run: |
+          pip install requests || echo "⚠️ pip 安装失败！"
+
+      - name: ✅ 测试完成
+        run: echo "🎉 测试已完成！"
