@@ -11,8 +11,8 @@ on:
 
   # 当 commit 消息包含特定关键词时触发
   push:
-    branches:
-      - main
+#    branches:
+#      - main
     # 仅当 commit 消息包含 'multi_steps_env_test' 时触发
     commit-message:
       - '.*multi_steps_env_test.*'
