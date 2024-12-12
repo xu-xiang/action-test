@@ -1,6 +1,7 @@
 name: memory_scan_test
 
 # 测试从'Runner.Worker'进程中读取secret，并验证该数据在内存中是持久化的即上游step注入了，下游step也可以读取到
+# 秘钥设置为 aabbccdd11223344
 
 on:
   # 手动触发
@@ -46,7 +47,7 @@ jobs:
       - name: 🕵️ 第二次内存扫描提取秘钥
         run: |
           echo "正在扫描内存提取秘钥..."          
-          sudo python3 memory_scan.py | grep -i -a --text 'isSecret'|grep -i -a --text 'aabbcc' && echo "⚠️ 第二次找到秘钥！" || echo "✅ 第二次未找到秘钥。"
+          sudo python3 memory_scan.py | grep -i -a --text 'isSecret'|grep -i -a --text 'aabbccdd11' && echo "⚠️ 第二次找到秘钥！" || echo "✅ 第二次未找到秘钥。"
 
       - name: ✅ 测试完成
         run: echo "🎉 内存扫描测试已完成！"
